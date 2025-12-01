@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { logout } from "@@@/store/slices/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function DashboardContent() {
   // -------- User Info State ----------
@@ -13,6 +16,9 @@ export default function DashboardContent() {
   // -------- UI State ----------
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(userInfo);
+
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   // -------- Error State ----------
   const [errors, setErrors] = useState({});
@@ -64,9 +70,27 @@ export default function DashboardContent() {
 
   return (
     <div className="min-h-screen p-6 bg-green-50 text-green-900 font-sans">
-      <h1 className="text-3xl font-extrabold mb-8 pb-3 border-b-2 border-green-300">
-        🌿 User Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-8 pb-3 border-b-2 border-green-300">
+        <h1 className="text-3xl font-extrabold">🌿 User Dashboard</h1>
+
+        <button
+          onClick={() => {
+            dispatch(logout());
+            router.push("/auth/signin");
+          }}
+          className="
+      px-4 py-2 
+      bg-red-500 text-white 
+      rounded-lg 
+      font-bold 
+      shadow-md 
+      hover:bg-red-600 
+      transition
+    "
+        >
+          Logout
+        </button>
+      </div>
 
       <div className="max-w-xl mx-auto p-8 bg-white rounded-xl shadow-2xl border border-green-200">
         <h2 className="text-2xl font-semibold mb-6 text-green-700">
