@@ -53,6 +53,48 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// authSlice.js
+export const getCurrentUser = createAsyncThunk(
+  "auth/getCurrentUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN);
+      if (!token) throw new Error("No access token");
+
+      const { data } = await api.get("/api/auth/me/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return data;
+    } catch (err) {
+      const message =
+        err?.response?.data?.detail || err.message || "Failed to fetch user";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// authSlice.js (add this below getCurrentUser)
+export const updateCurrentUser = createAsyncThunk(
+  "auth/updateCurrentUser",
+  async (updatedData, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN);
+      if (!token) throw new Error("No access token");
+
+      const { data } = await api.put("/api/auth/me/", updatedData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return data;
+    } catch (err) {
+      const message =
+        err?.response?.data || err.message || "Failed to update profile";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -105,6 +147,33 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(getCurrentUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getCurrentUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload;
+        state.isAuthenticated = !!action.payload;
+      })
+      .addCase(getCurrentUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
+    builder
+      // Existing cases...
+      .addCase(updateCurrentUser.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(updateCurrentUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(updateCurrentUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

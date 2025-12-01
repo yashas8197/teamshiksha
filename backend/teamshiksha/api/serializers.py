@@ -69,4 +69,20 @@ class LoginSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
-    
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for /api/auth/me/:
+    - editable: first_name, last_name
+    - read-only: email, username, id
+    """
+    email = serializers.EmailField(read_only=True)
+    username = serializers.CharField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "first_name", "last_name"]
+        read_only_fields = ("id", "username", "email") 
