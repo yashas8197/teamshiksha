@@ -162,7 +162,11 @@ export default function SignUp() {
               {status === "loading" ? "Creating Account..." : "Create Account"}
             </button>
             {error && (
-              <p className="mt-2 text-sm text-red-600 text-center">{error}</p>
+              <div className="text-red-500 text-sm">
+                {Object.entries(error).map(([field, messages]) => (
+                  <p key={field}>{messages.join(", ")}</p>
+                ))}
+              </div>
             )}
           </div>
         </form>
